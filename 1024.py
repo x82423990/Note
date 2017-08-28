@@ -6,8 +6,8 @@ from time import sleep, ctime
 
 from pyquery import PyQuery as pq
 
-cmp = re.compile(r'\d+\.jpg') # 图片的名字
-Pre = re.compile(r'(\d+)(?:P)') # 每个主题图片的数量
+cmp = re.compile(r'\d+\.jpg')   # 图片的名字
+Pre = re.compile(r'(\d+)(?:P)')     # 每个主题图片的数量
 headers = {'User-Agent':"Mozilla/5.0 (Windows NT 6.1; WOW64) AppleWebKit/537.1 (KHTML, like Gecko) Chrome/22.0.1207.1 Safari/537.1",
             'Accept':"text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,*/*;q=0.8",
             'Accept-Encoding':'gzip',
@@ -33,13 +33,21 @@ UserAgent_List = [
 	"Mozilla/5.0 (Windows NT 6.2; WOW64) AppleWebKit/535.24 (KHTML, like Gecko) Chrome/19.0.1055.1 Safari/535.24"
 ]
 
+
+# 生成随机的heards，网站有反爬虫的可能。
+def get_image_header():
+    return {'User-Agent': random.choice(UserAgent_List),
+            'Accept': "text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,*/*;q=0.8",
+            'Cache-Control': 'no-cache',
+            'Upgrade-Insecure-Requests': '1',
+    }
+
+
 # 获取图片URL
-
-
 # 利用子页面，下载图片到本地
 def download(res, img_dir, num_retries=3):  #重试次数为3
     try:
-        res_page = requests.get(res, headers=headers, timeout=30)
+        res_page = requests.get(res, headers=get_image_header(), timeout=30)
         res_page.raise_for_status()
         res_doc = pq(res_page.text)
         res_li = (res_doc('#read_tpc').find('a'))
@@ -53,7 +61,7 @@ def download(res, img_dir, num_retries=3):  #重试次数为3
         tmp = pq(str(j))
         img_url = str(tmp('a').attr('href')).replace('i/?i=', '')
         print('正在下载'+img_url)
-        r = requests.get(img_url, headers=headers, timeout=30)
+        r = requests.get(img_url, headers=get_image_header(), timeout=30)
         img_name = re.search(cmp, img_url)
         if img_name is not None:
             with open(img_dir + img_name.group(), 'wb') as file:
@@ -92,7 +100,7 @@ def get_url_dir(url1, page_num, retry_num=3):   # 重试次数为3
     sleep(1)
     print('正在执行------')
     try:
-        page = requests.get(url1, headers=headers, timeout=10)
+        page = requests.get(url1, headers=get_image_header(), timeout=10)
         page.encoding = 'utf-8'
         doc = pq(page.text)
         li = (doc('tr').find('h3'))
@@ -113,24 +121,26 @@ def get_url_dir(url1, page_num, retry_num=3):   # 重试次数为3
 def main(page_start=5, page_end=None):  # 传入起始页面，默认结抓取前5页
     if page_end is None:   
         for p in range(page_start):
-            url = 'http://xxxx/pw/thread.php?fid=16&page=%s' % str(p+1)
+            url = 'http://1024.请修改西域名.biz/pw/thread.php?fid=16&page=%s' % str(p+1)     # 修改域名，否则不能运行
             get_url_dir(url, p+1)
     else:
         for p in range(page_start, page_end):
-            url = 'http://xxxx/pw/thread.php?fid=16&page=%s' % str(p+1)
+            url = 'http://1024.请修改西域名.biz/pw/thread.php?fid=16&page=%s' % str(p+1)    # 修改域名，否则不能运行
             get_url_dir(url, p+1)
 
-# 启用2个线程
-threads = []
-t1 = threading.Thread(target=main())
-threads.append(t1)
-t2 = threading.Thread(target=main())
-threads.append(t2)
-
+# 启用2个线程，美滋滋。
+t1 = threading.Thread(target=main, args=(10, ))     # 爬取前十页
+t2 = threading.Thread(target=main, args=(10, ))
+print(get_image_header())
 if __name__ == '__main__':
-    for t in threads:
-        t.setDaemon(True)
-        t.start()
-
+    t1.start()
+    sleep(2)
+    t2.start()
+    t1.join()
+    t2.join()
     print("all over %s" % ctime())
+
+
+
+
 
