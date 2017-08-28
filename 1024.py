@@ -98,7 +98,7 @@ def get_down(i):
 
 def get_url_dir(url1, page_num, retry_num=3):   # 重试次数为3
     sleep(1)
-    print('正在执行------')
+    print('————————————正在下载------当前线程为%s--------' % threading.current_thread().name)
     try:
         page = requests.get(url1, headers=get_image_header(), timeout=10)
         page.encoding = 'utf-8'
@@ -118,19 +118,14 @@ def get_url_dir(url1, page_num, retry_num=3):   # 重试次数为3
         n += 1
 
 
-def main(page_start=5, page_end=None):  # 传入起始页面，默认结抓取前5页
-    if page_end is None:   
-        for p in range(page_start):
-            url = 'http://1024.请修改西域名.biz/pw/thread.php?fid=16&page=%s' % str(p+1)     # 修改域名，否则不能运行
-            get_url_dir(url, p+1)
-    else:
-        for p in range(page_start, page_end):
-            url = 'http://1024.请修改西域名.biz/pw/thread.php?fid=16&page=%s' % str(p+1)    # 修改域名，否则不能运行
-            get_url_dir(url, p+1)
+def main(*pages):  # 传入起始页面，默认结抓取前5页
+    for p in range(*pages):
+        url = 'http://1024.当前地址无效，请修改.biz/pw/thread.php?fid=16&page=%s' % str(p)     # 修改域名，否则不能运行
+        get_url_dir(url, p)
 
 # 启用2个线程，美滋滋。
-t1 = threading.Thread(target=main, args=(10, ))     # 爬取前十页
-t2 = threading.Thread(target=main, args=(10, ))
+t1 = threading.Thread(target=main, args=(1, 10, 2, ))     # 爬取前十页的奇数
+t2 = threading.Thread(target=main, args=(2, 11, 2, ))       # 偶数
 print(get_image_header())
 if __name__ == '__main__':
     t1.start()
