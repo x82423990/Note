@@ -113,11 +113,11 @@ def get_url_dir(url1, page_num, retry_num=3):   # 重试次数为3
 def main(page_start=5, page_end=None):  # 传入起始页面，默认结抓取前5页
     if page_end is None:   
         for p in range(page_start):
-            url = 'http://1024.stv919.biz/pw/thread.php?fid=16&page=%s' % str(p+1)
+            url = 'http://xxxx/pw/thread.php?fid=16&page=%s' % str(p+1)
             get_url_dir(url, p+1)
     else:
         for p in range(page_start, page_end):
-            url = 'http://1024.stv919.biz/pw/thread.php?fid=16&page=%s' % str(p+1)
+            url = 'http://xxxx/pw/thread.php?fid=16&page=%s' % str(p+1)
             get_url_dir(url, p+1)
 
 # 启用2个线程
